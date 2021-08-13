@@ -29,6 +29,7 @@ update：
 平铺参数，测试vectorize，学习fitAuto
 手动拟合netfit
 梯度检测gradientCheck
+fit添加batch_size参数，对于大量数据，分批次学习
 """
 from myfunc import *
 import numpy as np
@@ -205,10 +206,17 @@ class Net:
         return h
 
     def fit(self, x, y, times=1000, eta=1e-1, pen=1e-1,
+            batch_size=10,
             converge_gap=1e-10, diverge_gap=1e-2, acc_quit=99):
         self.lasterror = 1e5
         for time in range(times):
-            self.fit_batch(x, y, eta=eta, pen=pen)
+            try:
+                for point in range(0, x.shape[1]-1, batch_size):
+                    self.fit_batch(x[:, point:point+batch_size],
+                                   y[:, point:point+batch_size], eta=eta, pen=pen)
+            except Exception as e:
+                print(e)
+                self.fit_batch(x, y, eta=eta, pen=pen)
             if time % 10 == 0:
                 eva = self.evaluate(x, y, pen=pen)
                 print('times:', time)
@@ -221,7 +229,7 @@ class Net:
                 elif abs(eva[1] - self.lasterror) <= converge_gap:
                     print(f'Converged! by acc {eva[0]}')
                     return
-                elif time > 10 and abs(eva[1] - self.lasterror) >= diverge_gap:
+                elif time > 10 and eva[1] - self.lasterror >= diverge_gap:
                     print(f'Diverged! by acc {eva[0]}')
                     return
                 self.lasterror = eva[1]
@@ -295,7 +303,7 @@ class Net:
         eps = 1e-1
         acc = np.sum(np.abs(h - y) < eps, axis=None) / (y.shape[0] * y.shape[1]) * 100
         temp1 = -1 / m * np.sum(y * mylog(h) + (1 - y) * mylog(1 - h), axis=None)
-        temp2 = pen / 2 / m * sum([np.sum(w[1:, :] ** 2, axis=None) for w in self.wList])
+        temp2 = pen / 2 / m * sum([np.sum(w[:, 1:] ** 2, axis=None) for w in self.wList])
         return acc, temp1 + temp2
 
     def fitAuto(self, x, y, pen=1e2):
@@ -394,7 +402,8 @@ def netfit():
     args = {
         'times': 10000,
         'eta': 1e-1,
-        'pen': 1e-4,
+        'pen': 1e-2,
+        'batch_size': 10,
         'acc_quit': 99
     }
     model.fit(data_in, data_out, **args)
