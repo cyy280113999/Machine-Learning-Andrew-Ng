@@ -7,11 +7,15 @@ https://www.bilibili.com/video/BV164411b7dx
 
 工具：
 
+（主要）
+
 python
 
 numpy 使用了数组
 
 matplotlib 绘图
+
+（其他）
 
 scipy 使用优化算法
 
