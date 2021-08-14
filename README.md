@@ -13,11 +13,10 @@ python
 
 numpy 使用了数组
 
-matplotlib 绘图
-
 （其他）
+
+matplotlib 绘图
 
 scipy 使用优化算法
 
 tensorflow mnist数据集：ex3 ep11 训练
-
