@@ -22,3 +22,5 @@ scipy 使用优化算法
 tensorflow mnist数据集：ex3 ep11 训练
 
 sklearn dataset数据集：ex4 使用
+
+PIL python图像处理库：ex5 ep21
